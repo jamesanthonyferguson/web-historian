@@ -10,22 +10,21 @@ var reg = /[www.]?[a-zA-Z0-9]+.[a-zA-Z]+/
 
 exports.handleRequest = function (req, res) {
 
-  if (req.method === "OPTIONS") {
-    var headers = httpHelper.headers
-    headers.Allow = "HEAD,GET,PUT,DELETE,OPTIONS"
-    res.writeHead(200, headers)
-    res.end();
-  } else if (req.method === "GET" && req.url === "/") {
+  // if (req.method === "OPTIONS") {
+  //   var headers = httpHelper.headers
+  //   headers.Allow = "HEAD,GET,PUT,DELETE,OPTIONS"
+  //   res.writeHead(200, headers)
+  //   res.end();
+  // } else
+  if (req.method === "GET" && req.url === "/") {
     res.writeHead(200, httpHelper.headers)
-    httpHelper.serveAssets(res, path.join(__dirname, "../web/public/index.html"), "write")
-    res.end()
+    httpHelper.serveAssets(res, path.join(__dirname, "../web/public/index.html"), "end")
   } else if (req.method === "GET" && reg.test(req.url)) {
     //call helper fn to see if in sites.txt
     var reqSite = String.prototype.slice.call(req.url, 1);
     archive.findUrlInArchiveList(archive.paths["list"], reqSite, function(){
       res.writeHead(200,httpHelper.headers);
-      httpHelper.serveAssets(res,path.join(archive.paths["archivedSites"],reqSite),"write");
-      res.end();
+      httpHelper.serveAssets(res, path.join(archive.paths["archivedSites"],reqSite), "end");
     }, function(){
       res.writeHead(404,httpHelper.headers);
       res.end();
@@ -42,14 +41,12 @@ exports.handleRequest = function (req, res) {
       data = String.prototype.slice.call(data, 13);
       archive.findUrlInArchiveList(archive.paths["list"],data, function(){
         res.writeHead(302,httpHelper.headers);
-        httpHelper.serveAssets(res,path.join(archive.paths["archivedSites"], data),"write");
-        res.end();
+        httpHelper.serveAssets(res, path.join(archive.paths["archivedSites"], data), "end");
       },
       function(){
         archive.addUrlToList(archive.paths["list"], data, function(a){
           res.writeHead(302,httpHelper.headers);
-          httpHelper.serveAssets(res,path.join(__dirname, "../web/public/loading.html"),"write");
-          res.end();
+          httpHelper.serveAssets(res, path.join(__dirname, "../web/public/loading.html"), "end");
         }, function(){
           res.writeHead(403,httpHelper.headers);
           res.end();
