@@ -41,7 +41,7 @@ exports.findUrlInArchiveList = function(asset, url, callback, errFn){
 
 exports.addUrlToList = function(asset, url, callback, errFn){
   var site = String.prototype.slice.call(url, 13);
-  site = site + "\n";
+  site = url + "\n";
   fs.appendFile(asset, site, function(err) {
     if (err) {
       console.log('Couldnt add site to file: '+ err);

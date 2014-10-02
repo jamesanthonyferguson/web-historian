@@ -1,3 +1,4 @@
+var http = require("http");
 var path = require('path');
 var archive = require('../helpers/archive-helpers');
 var httpHelper = require('./http-helpers.js')
@@ -9,9 +10,14 @@ var reg = /[www.]?[a-zA-Z0-9]+.[a-zA-Z]+/
 
 exports.handleRequest = function (req, res) {
 
-  if (req.method === "GET" && req.url === "/") {
+  if (req.method === "OPTIONS") {
+    var headers = httpHelper.headers
+    headers.Allow = "HEAD,GET,PUT,DELETE,OPTIONS"
+    res.writeHead(200, headers)
+    res.end();
+  } else if (req.method === "GET" && req.url === "/") {
     res.writeHead(200, httpHelper.headers)
-    httpHelper.serveAssets(res, "./web/public/index.html", "write")
+    httpHelper.serveAssets(res, path.join(__dirname, "../web/public/index.html"), "write")
     res.end()
   } else if (req.method === "GET" && reg.test(req.url)) {
     //call helper fn to see if in sites.txt
@@ -33,13 +39,22 @@ exports.handleRequest = function (req, res) {
       }
     });
     req.on('end', function(){
-      archive.addUrlToList(archive.paths["list"], data, function(a){
+      data = String.prototype.slice.call(data, 13);
+      archive.findUrlInArchiveList(archive.paths["list"],data, function(){
         res.writeHead(302,httpHelper.headers);
+        httpHelper.serveAssets(res,path.join(archive.paths["archivedSites"], data),"write");
         res.end();
-      }, function(){
-        res.writeHead(403,httpHelper.headers);
-        res.end();
-      });
+      },
+      function(){
+        archive.addUrlToList(archive.paths["list"], data, function(a){
+          res.writeHead(302,httpHelper.headers);
+          httpHelper.serveAssets(res,path.join(__dirname, "../web/public/loading.html"),"write");
+          res.end();
+        }, function(){
+          res.writeHead(403,httpHelper.headers);
+          res.end();
+        })
+      })
     })
   } else {
     res.writeHead(404,httpHelper.headers);
