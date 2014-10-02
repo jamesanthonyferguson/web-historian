@@ -1,4 +1,3 @@
 #!/usr/local/bin/node
-var fetch = require("./htmlfetcher.js")
-var fs = require('fs')
+var fetch = require("/Users/jamesferguson/Desktop/2014-09-web-historian/workers/htmlfetcher.js")
 fetch.fetch();
