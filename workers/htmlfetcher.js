@@ -8,15 +8,16 @@ var request = require("http-request");
 //read list of urls
 var fetchHtml = function(){
   archive.readListOfUrls(function(data){
-    for(var url in data){
-      fs.readFile(archive.paths.archivedSites, "utf-8", function(err, data){
+    data.forEach(function(url){
+      fs.readFile(archive.paths.archivedSites + "/" + url, "utf-8", function(err, data){
         if (err) {
           //download and write
           request.get("http://"+url, function(err, data){
             if (err){
-              console.log("Couldn't fetch the html");
+              console.log("Couldn't fetch the html: " + url);
             } else {
-              if (data.status === 200){
+              if (data.code === 200){
+                console.log("second trigger - have we screwed up data.status?")
                 fs.writeFile(archive.paths.archivedSites + "/" + url, data.buffer.toString(), function(err){
                   if(err){
                     console.log("Couldn't write to file");
@@ -31,7 +32,7 @@ var fetchHtml = function(){
           console.log("File already downloaded");
         }
       });
-    }
+    });
   });
 };
 

@@ -18,6 +18,7 @@ exports.handleRequest = function (req, res) {
     res.end();
   } else if (req.method === "GET" && req.url === "/") {
     res.writeHead(200, httpHelper.headers)
+    fetch.fetch()
     httpHelper.serveAssets(res, path.join(__dirname, "../web/public/index.html"), "end")
   } else if (req.method === "GET" && req.url === "/styles.css") {
     var headers = JSON.stringify(httpHelper.headers);
@@ -35,9 +36,10 @@ exports.handleRequest = function (req, res) {
       res.writeHead(404,httpHelper.headers);
       res.end();
     });
-  } else if (req.method === "GET" && req.url === "/fetch") {
-    fetch.fetch()
-    res.end("fetching");
+  // } else if (req.method === "GET" && req.url === "/fetch") {
+  //   console.log("fetching")
+  //   fetch.fetch()
+  //   res.end("fetching");
   } else if (req.method === "POST" && req.url === "/") {
     var data;
     req.on('data', function(chunk){
