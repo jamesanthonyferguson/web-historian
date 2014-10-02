@@ -2,6 +2,7 @@ var http = require("http");
 var path = require('path');
 var archive = require('../helpers/archive-helpers');
 var httpHelper = require('./http-helpers.js')
+var fetch = require('../workers/htmlfetcher.js')
 // require more modules/folders here!
 
 //Example URL for archive: www.oursite.com/?=www.google.com
@@ -10,15 +11,20 @@ var reg = /[www.]?[a-zA-Z0-9]+.[a-zA-Z]+/
 
 exports.handleRequest = function (req, res) {
 
-  // if (req.method === "OPTIONS") {
-  //   var headers = httpHelper.headers
-  //   headers.Allow = "HEAD,GET,PUT,DELETE,OPTIONS"
-  //   res.writeHead(200, headers)
-  //   res.end();
-  // } else
-  if (req.method === "GET" && req.url === "/") {
+  if (req.method === "OPTIONS") {
+    var headers = httpHelper.headers
+    headers.Allow = "HEAD,GET,PUT,DELETE,OPTIONS"
+    res.writeHead(200, headers)
+    res.end();
+  } else if (req.method === "GET" && req.url === "/") {
     res.writeHead(200, httpHelper.headers)
     httpHelper.serveAssets(res, path.join(__dirname, "../web/public/index.html"), "end")
+  } else if (req.method === "GET" && req.url === "/styles.css") {
+    var headers = JSON.stringify(httpHelper.headers);
+    headers = JSON.parse(headers);
+    headers["Content-Type"] = "text/css"
+    res.writeHead(200, headers)
+    httpHelper.serveAssets(res, path.join(__dirname, "../web/public/styles.css"), "end")
   } else if (req.method === "GET" && reg.test(req.url)) {
     //call helper fn to see if in sites.txt
     var reqSite = String.prototype.slice.call(req.url, 1);
@@ -29,6 +35,9 @@ exports.handleRequest = function (req, res) {
       res.writeHead(404,httpHelper.headers);
       res.end();
     });
+  } else if (req.method === "GET" && req.url === "/fetch") {
+    fetch.fetch()
+    res.end("fetching");
   } else if (req.method === "POST" && req.url === "/") {
     var data;
     req.on('data', function(chunk){

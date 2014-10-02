@@ -67,6 +67,7 @@ exports.readListOfUrls = function(callback){
 
 // };
 
-exports.downloadUrls = function(){
+exports.downloadUrls = function(url){
+
 };
 

@@ -18,7 +18,6 @@ exports.serveAssets = function(res, asset, callback) {
     if(err){
       console.log(err);
     } else {
-      console.log(callback)
       res[callback](data);
     }
   });
